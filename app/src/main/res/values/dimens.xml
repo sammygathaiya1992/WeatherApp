@@ -1,0 +1,11 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="spacing_small">3dp</dimen>
+    <dimen name="spacing_xlarge">10dp</dimen>
+    <dimen name="fifteen">15dp</dimen>
+    <dimen name="spacing_xxlarge">20dp</dimen>
+    <dimen name="twenty_five">25dp</dimen>
+    <dimen name="spacing_xxxlarge">30dp</dimen>
+    <dimen name="text_xlarge">40dp</dimen>
+</resources>
