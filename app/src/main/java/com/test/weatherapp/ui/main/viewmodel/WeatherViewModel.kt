@@ -1,7 +1,6 @@
 package com.test.weatherapp.ui.main.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,7 +13,6 @@ import com.test.weatherapp.data.room.database.WeatherDB
 import com.test.weatherapp.data.room.entities.Favourites
 import com.test.weatherapp.data.room.entities.Weather
 import com.test.weatherapp.ui.main.listener.UniversalListener
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 /**

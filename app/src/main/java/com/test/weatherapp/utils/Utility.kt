@@ -19,33 +19,22 @@ object Utility {
     private var progressBar: ProgressBar? = null
     private val stringFormat = DecimalFormat("###,###")
 
-
     // show progressbar
     fun showProgressBar(context: Context, activity: AppCompatActivity) {
         try {
             val layout = (context as? Activity)?.findViewById<View>(R.id.content)?.rootView as? ViewGroup
-
             progressBar = ProgressBar(context, null, R.attr.progressBarStyleLarge)
-            progressBar?.let { it1 ->
-                it1.isIndeterminate = true
-
-                val params = RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.MATCH_PARENT,
-                    RelativeLayout.LayoutParams.MATCH_PARENT
-                )
-
+            progressBar?.let { it1 -> it1.isIndeterminate = true
+                val params = RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT)
                 val rl = RelativeLayout(context)
-
                 rl.gravity = Gravity.CENTER
                 rl.addView(it1)
-
                 layout?.addView(rl, params)
-
                 it1.visibility = View.VISIBLE
                 activity.window.setFlags(
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                     WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                );
+                )
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -104,18 +93,16 @@ object Utility {
         val toast = Toast(context)
         toast.duration = Toast.LENGTH_LONG
         val layoutInflater:LayoutInflater = LayoutInflater.from(context)
-
-        //inflate view
-        val custom_view: View =
+        val customView: View =
             layoutInflater.inflate(com.test.weatherapp.R.layout.custom_toast_view, null)
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
+        (customView.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
+        (customView.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
             com.test.weatherapp.R.drawable.ic_done
         )
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
+        (customView.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
             context.resources.getColor(com.test.weatherapp.R.color.colorPrimary)
         )
-        toast.view = custom_view
+        toast.view = customView
         toast.show()
     }
 
@@ -124,18 +111,16 @@ object Utility {
         val toast = Toast(context)
         toast.duration = Toast.LENGTH_LONG
         val layoutInflater:LayoutInflater = LayoutInflater.from(context)
-
-        //inflate view
-        val custom_view: View =
+        val customView: View =
             layoutInflater.inflate(com.test.weatherapp.R.layout.custom_toast_view, null)
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
+        (customView.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
+        (customView.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
             com.test.weatherapp.R.drawable.ic_error
         )
-        (custom_view.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
+        (customView.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
             context.resources.getColor(com.test.weatherapp.R.color.red_300)
         )
-        toast.view = custom_view
+        toast.view = customView
         toast.show()
     }
 

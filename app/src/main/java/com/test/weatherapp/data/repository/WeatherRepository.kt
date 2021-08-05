@@ -1,7 +1,6 @@
 package com.test.weatherapp.data.repository
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import com.test.weatherapp.constants.Constants
 import com.test.weatherapp.data.api.RestEndpoints

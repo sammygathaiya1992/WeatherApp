@@ -6,11 +6,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.test.weatherapp.R
 import com.test.weatherapp.data.model.WeatherAttribute
-import com.test.weatherapp.data.model.WeatherForecastList
 import com.test.weatherapp.utils.Utility
 import java.lang.Exception
 

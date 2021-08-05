@@ -6,7 +6,8 @@
     <string name="min">min</string>
     <string name="current">current</string>
     <string name="max">max</string>
-    <string name="switch_on_location">Your application requires location so that it can work propely. Please switch on location</string>
+    <string name="location_needed">Location Permission Needed</string>
+    <string name="switch_on_location">Your application requires location so that it can work properly. Please switch on location</string>
     <string name="get_weather_error">There was an error getting the weather details. Please try again later</string>
     <string name="failed">Failed!</string>
     <string name="warning_desc">You will not be able to proceed until you grant your application all the required permissions</string>

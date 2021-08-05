@@ -136,11 +136,11 @@ class FavouritesLocationsOnMap : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun onConnectionSuspended(p0: Int) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onConnectionFailed(p0: ConnectionResult) {
-        TODO("Not yet implemented")
+
     }
 
 
@@ -154,10 +154,10 @@ class FavouritesLocationsOnMap : AppCompatActivity(), OnMapReadyCallback,
                 )
             ) {
                 AlertDialog.Builder(this)
-                    .setTitle("Location Permission Needed")
-                    .setMessage("This app needs the Location permission, please accept to use location functionality")
+                    .setTitle(getString(R.string.location_needed))
+                    .setMessage(getString(R.string.switch_on_location))
                     .setPositiveButton(
-                        "OK"
+                        getString(R.string.ok)
                     ) { dialogInterface, i ->
                         ActivityCompat.requestPermissions(
                             this,
