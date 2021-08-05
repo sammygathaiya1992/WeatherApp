@@ -19,9 +19,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".ui.main.view.FavouritesLocations"
-            android:label="@string/title_activity_favourites_locations"
+            android:name=".ui.main.view.FavouritesLocationsOnMap"
+            android:label="@string/title_activity_favourite_map"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".ui.main.view.FavouritesLocationsList"
+            android:label="@string/title_activity_favourites_locations"
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -34,9 +38,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity
-            android:name=".ui.main.view.WeatherLocations"
-            android:label="@string/title_activity_weather_locations" />
         <activity
             android:name=".ui.main.view.MainActivity"
             android:label="@string/app_name"

@@ -359,14 +359,16 @@ class MainActivity : AppCompatActivity(), UniversalListener {
                 true
             }
             R.id.action_view_favourites -> {
-                var intent= Intent(this, FavouritesLocations::class.java)
+                var intent= Intent(this, FavouritesLocationsList::class.java)
                 startActivity(intent)
                 true
             }
-            R.id.action_list_favourites -> {
+            R.id.action_more_about_location -> {
                 true
             }
             R.id.action_map_favourites -> {
+                var intent= Intent(this, FavouritesLocationsOnMap::class.java)
+                startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)

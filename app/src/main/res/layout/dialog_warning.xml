@@ -49,7 +49,8 @@
             android:textAlignment="center"
             android:text="@string/warning_desc"
             android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-            android:textColor="@color/grey_60" />
+            android:textColor="@color/grey_60"
+            android:gravity="center_horizontal" />
     </LinearLayout>
 
     <LinearLayout

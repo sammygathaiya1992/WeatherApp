@@ -14,7 +14,7 @@ import com.test.weatherapp.ui.viewmodelfactories.WeatherViewModelFactory
 import com.test.weatherapp.utils.Utility
 import kotlinx.android.synthetic.main.content_favourites_locations.*
 
-class FavouritesLocations : AppCompatActivity(), UniversalListener {
+class FavouritesLocationsList : AppCompatActivity(), UniversalListener {
     private var context = this
     private lateinit var weatherViewModel: WeatherViewModel
     private lateinit var adapter: FavouritesAdapter

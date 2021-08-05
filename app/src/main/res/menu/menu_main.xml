@@ -16,13 +16,13 @@
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_list_favourites"
+        android:id="@+id/action_map_favourites"
         android:orderInCategory="100"
         android:title="@string/view_favourites_on_map"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/action_map_favourites"
+        android:id="@+id/action_more_about_location"
         android:orderInCategory="100"
         android:title="@string/show_extra_info"
         app:showAsAction="never" />
