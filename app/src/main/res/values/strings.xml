@@ -6,6 +6,7 @@
     <string name="min">min</string>
     <string name="current">current</string>
     <string name="max">max</string>
+    <string name="switch_on_location">Your application requires location so that it can work propely. Please switch on location</string>
     <string name="get_weather_error">There was an error getting the weather details. Please try again later</string>
     <string name="failed">Failed!</string>
     <string name="warning_desc">You will not be able to proceed until you grant your application all the required permissions</string>
@@ -14,6 +15,15 @@
     <string name="show_extra_info">More about current location</string>
     <string name="offline">You are offline. You will see the last updates your app received</string>
     <string name="error">Error</string>
+    <string name="no_internet">No internet connection!</string>
+    <string name="success_saved">Current location saved as favourite</string>
+    <string name="loc_details">LOCATION DETAILS</string>
+    <string name="country">Country name: </string>
+    <string name="location">Location name: </string>
+    <string name="admin_area">Administration area: </string>
+    <string name="country_code">Country code: </string>
+    <string name="lat">Latitude: </string>
+    <string name="lon">Longitude:  </string>
 
     <!--Maps Activity-->
     <string name="title_activity_weather_locations">Map</string>

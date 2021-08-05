@@ -39,7 +39,7 @@ class WeatherForecastAdapter(
         try {
             val weatherForecastItem = weatherForecastList[position]
             holder.weekDay?.text = Utility.getDayName(weatherForecastItem.dateTime.toString())
-            holder.maxTemp?.text = weatherForecastItem.mainAttributes!!.maxTemperature.toString()
+            holder.maxTemp?.text = Utility.convertToString(weatherForecastItem.mainAttributes?.maxTemperature!!)+"°"
             when {
                 weatherForecastItem.weatherList!![0].main.equals("Clouds") -> {
                     holder.imgWeather?.setImageResource(R.drawable.partlysunny)

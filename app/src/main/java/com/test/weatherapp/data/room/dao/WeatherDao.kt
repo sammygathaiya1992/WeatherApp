@@ -21,4 +21,7 @@ interface WeatherDao {
 
     @Query("DELETE FROM weather")
     fun deleteAll()
+
+    @Query("SELECT * FROM weather")
+    fun getAllWeatherRecords(): List<Weather>
 }

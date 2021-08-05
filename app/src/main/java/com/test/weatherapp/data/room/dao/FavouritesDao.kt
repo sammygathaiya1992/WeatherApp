@@ -17,4 +17,7 @@ interface FavouritesDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertFavourite(favourites: Favourites): Long
+
+    @Query("SELECT * FROM favourites")
+    fun getAll(): List<Favourites>
 }

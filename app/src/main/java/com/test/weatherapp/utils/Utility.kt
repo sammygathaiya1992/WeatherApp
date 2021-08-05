@@ -10,12 +10,15 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.cardview.widget.CardView
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 object Utility {
 
     private var progressBar: ProgressBar? = null
+    private val stringFormat = DecimalFormat("###,###")
+
 
     // show progressbar
     fun showProgressBar(context: Context, activity: AppCompatActivity) {
@@ -92,8 +95,12 @@ object Utility {
         return networkInfo != null && networkInfo.isConnected
     }
 
+    fun convertToString(temp: Double): String{
+        return stringFormat.format(temp)
+    }
 
-    fun showWarningToast(context: Context,message: String?) {
+
+    fun showSuccessToast(context: Context,message: String?) {
         val toast = Toast(context)
         toast.duration = Toast.LENGTH_LONG
         val layoutInflater:LayoutInflater = LayoutInflater.from(context)
@@ -103,7 +110,27 @@ object Utility {
             layoutInflater.inflate(com.test.weatherapp.R.layout.custom_toast_view, null)
         (custom_view.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
         (custom_view.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
-            com.test.weatherapp.R.drawable.ic_warning_sign
+            com.test.weatherapp.R.drawable.ic_done
+        )
+        (custom_view.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
+            context.resources.getColor(com.test.weatherapp.R.color.colorPrimary)
+        )
+        toast.view = custom_view
+        toast.show()
+    }
+
+
+    fun showErrorToast(context: Context,message: String?) {
+        val toast = Toast(context)
+        toast.duration = Toast.LENGTH_LONG
+        val layoutInflater:LayoutInflater = LayoutInflater.from(context)
+
+        //inflate view
+        val custom_view: View =
+            layoutInflater.inflate(com.test.weatherapp.R.layout.custom_toast_view, null)
+        (custom_view.findViewById<View>(com.test.weatherapp.R.id.message) as TextView).text = message
+        (custom_view.findViewById<View>(com.test.weatherapp.R.id.icon) as ImageView).setImageResource(
+            com.test.weatherapp.R.drawable.ic_error
         )
         (custom_view.findViewById<View>(com.test.weatherapp.R.id.parent_view) as CardView).setCardBackgroundColor(
             context.resources.getColor(com.test.weatherapp.R.color.red_300)

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="bottom"
+    android:background="@android:color/transparent"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/spacing_xlarge"
+        app:cardCornerRadius="3dp"
+        app:cardElevation="5dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/spacing_smlarge">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="16dp"
+                        android:textAllCaps="true"
+                        android:text="@string/loc_details"
+                        android:textColor="@color/colorPrimary" />
+
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/bt_close"
+                    android:layout_width="@dimen/twenty_five"
+                    android:layout_height="@dimen/twenty_five"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:tint="@color/colorPrimary"
+                    app:srcCompat="@drawable/ic_close" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="@dimen/spacing_xlarge"
+                android:layout_marginTop="@dimen/spacing_xlarge"
+                android:background="@color/grey_10" />
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:minHeight="@dimen/twenty_five"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:layout_weight="0.5"
+                android:text="@string/country"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/tv_country_name"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Kenya"
+                android:layout_weight="0.5"
+                android:layout_marginTop="@dimen/spacing_medium"
+                android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                android:textColor="@color/colorBlack" />
+        </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_weight="0.5"
+                    android:text="@string/location"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tv_location_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="Kiambu"
+                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_weight="0.5"
+                    android:text="@string/admin_area"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tv_admin_area"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="Kiambu county"
+                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_weight="0.5"
+                    android:text="@string/country_code"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tv_country_code"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="KE"
+                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_weight="0.5"
+                    android:text="@string/lat"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tv_latitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="0.225445"
+                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="1"
+                android:layout_marginTop="@dimen/spacing_small"
+                android:minHeight="@dimen/twenty_five"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:layout_weight="0.5"
+                    android:text="@string/lon"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+
+                <TextView
+                    android:id="@+id/tv_longitude"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    tools:text="-10.225445"
+                    android:layout_weight="0.5"
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+                    android:textColor="@color/colorBlack" />
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/fifteen"
+                android:gravity="right"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/bt_submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/ok"
+                    android:theme="@style/Button.Primary" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>

@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.LocationManager
@@ -12,6 +11,9 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.view.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
@@ -20,9 +22,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.room.Room
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.test.weatherapp.R
 import com.test.weatherapp.data.model.WeatherAttribute
 import com.test.weatherapp.data.model.WeatherForecastList
@@ -34,10 +36,10 @@ import com.test.weatherapp.ui.main.listener.UniversalListener
 import com.test.weatherapp.ui.main.viewmodel.WeatherViewModel
 import com.test.weatherapp.ui.viewmodelfactories.WeatherViewModelFactory
 import com.test.weatherapp.utils.Utility
+import com.test.weatherapp.utils.Utility.showSuccessToast
 import kotlinx.android.synthetic.main.content_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -45,13 +47,11 @@ import java.util.*
 class MainActivity : AppCompatActivity(), UniversalListener {
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private val permissionRequest = 99
-    private val requestLocation = 199
     private var context = this
     private lateinit var weatherViewModel: WeatherViewModel
     private var isGetCurrentWeather = true
     private var latitude = 0.0
     private var longitude = 0.0
-    private val stringFormat = DecimalFormat("###,###")
     private lateinit var adapter: WeatherForecastAdapter
     private var weatherInfo = WeatherAttribute()
     private var countryName = ""
@@ -59,6 +59,7 @@ class MainActivity : AppCompatActivity(), UniversalListener {
     private var adminArea = ""
     private lateinit var db: WeatherDB
     private var isGetLocalData = false
+    private var mBottomSheetDialog: BottomSheetDialog? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,14 +88,19 @@ class MainActivity : AppCompatActivity(), UniversalListener {
     }
 
     private fun saveCurrentWeatherDetails() {
-        var weather = Weather(
-            weatherInfo.mainAttributes?.temp!!,
-            weatherInfo.weatherList!![0].main.toString(),
-            weatherInfo.mainAttributes?.minTemperature!!,
-            weatherInfo.mainAttributes?.maxTemperature!!
-        )
-        db.weatherDao().deleteAll()
-        db.weatherDao().insertWeatherDetails(weather)
+        try {
+            var weather = Weather(
+                weatherInfo.mainAttributes?.temp!!,
+                weatherInfo.weatherList!![0].main.toString(),
+                weatherInfo.mainAttributes?.minTemperature!!,
+                weatherInfo.mainAttributes?.maxTemperature!!
+            )
+            db.weatherDao().deleteAll()
+            db.weatherDao().insertWeatherDetails(weather)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
     }
 
     private fun setUpToolBar() {
@@ -208,23 +214,6 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         weatherViewModel.getCurrentWeather()
     }
 
-    private fun grantPermissionsDialog() {
-        val dialog = Dialog(this)
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
-        dialog.setContentView(R.layout.dialog_warning)
-        dialog.setCancelable(true)
-        val lp = WindowManager.LayoutParams()
-        lp.copyFrom(dialog.window!!.attributes)
-        lp.width = WindowManager.LayoutParams.WRAP_CONTENT
-        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
-        (dialog.findViewById(R.id.bt_close) as AppCompatButton).setOnClickListener {
-            dialog.dismiss()
-            requestPermissions()
-        }
-        dialog.show()
-        dialog.window!!.attributes = lp
-    }
-
 
     private fun checkIfGpsIsEnabled() {
         val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -241,68 +230,32 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         }
         if (!gpsEnabled && !networkEnabled) {
             //Open settings for user to switch on location
-            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-            startActivity(intent)
+            showCustomErrorDialog()
 
         }
     }
 
-    private fun openGps() {
-        var googleApiClient = GoogleApiClient.Builder(context!!)
-            .addApi(LocationServices.API).build()
-        googleApiClient!!.connect()
-        var locationRequest = LocationRequest.create()
-        locationRequest!!.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest!!.interval = 30 * 1000.toLong()
-        locationRequest!!.fastestInterval = 5 * 1000.toLong()
-
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest!!)
-        builder.setAlwaysShow(true)
-
-        var result =
-            LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build())
-        result!!.setResultCallback { result ->
-            val status: Status = result.status
-            when (status.statusCode) {
-                LocationSettingsStatusCodes.SUCCESS -> {
-                    // Do something
-                }
-                LocationSettingsStatusCodes.RESOLUTION_REQUIRED ->
-                    try {
-                        status.startResolutionForResult(
-                            this,
-                            requestLocation
-                        )
-                    } catch (e: IntentSender.SendIntentException) {
-                    }
-                LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {
-                    // Do something
-                }
-            }
-        }
-    }
 
     private fun displayLocallyFetchedDetails(weather: Weather) {
-        tv_min.text = stringFormat.format(weather.minimumTemperature)
-        tv_current.text = stringFormat.format(weather.currentTemp)
-        tv_max.text = stringFormat.format(weather.maximumTemperature)
+        tv_min.text = Utility.convertToString(weather.minimumTemperature) + "°"
+        tv_current.text = Utility.convertToString(weather.currentTemp) + "°"
+        tv_max.text = Utility.convertToString(weather.maximumTemperature) + "°"
         when (weather.description) {
             "Clouds" -> {
                 temperature.text =
-                    stringFormat.format(weather.currentTemp) + "\n CLOUDY"
+                    Utility.convertToString(weather.currentTemp) + "°" + "\n CLOUDY"
                 img_weather_image.setImageResource(R.drawable.forest_cloudy)
                 lyt_values.setBackgroundColor(resources.getColor(R.color.cloudy))
             }
             "Rain" -> {
                 temperature.text =
-                    stringFormat.format(weather.currentTemp) + "\n RAINY"
+                    Utility.convertToString(weather.currentTemp) + "°" + "\n RAINY"
                 img_weather_image.setImageResource(R.drawable.forest_rainy)
                 lyt_values.setBackgroundColor(resources.getColor(R.color.rainy))
             }
             "Clear" -> {
                 temperature.text =
-                    stringFormat.format(weather.currentTemp) + "\n SUNNY"
+                    Utility.convertToString(weather.currentTemp) + "°" + "\n SUNNY"
                 img_weather_image.setImageResource(R.drawable.forest_sunny)
                 lyt_values.setBackgroundColor(resources.getColor(R.color.sunny))
             }
@@ -312,25 +265,33 @@ class MainActivity : AppCompatActivity(), UniversalListener {
     private fun displayCurrentWeather(weatherAttribute: WeatherAttribute) {
         if (weatherAttribute.weatherList!!.isNotEmpty()) {
             var weatherList = weatherAttribute.weatherList
-            tv_min.text = stringFormat.format(weatherAttribute.mainAttributes?.minTemperature)
-            tv_current.text = stringFormat.format(weatherAttribute.mainAttributes?.temp)
-            tv_max.text = stringFormat.format(weatherAttribute.mainAttributes?.maxTemperature)
+            tv_min.text =
+                Utility.convertToString(weatherAttribute.mainAttributes?.minTemperature!!) + "°"
+            tv_current.text = Utility.convertToString(weatherAttribute.mainAttributes?.temp!!) + "°"
+            tv_max.text =
+                Utility.convertToString(weatherAttribute.mainAttributes?.maxTemperature!!) + "°"
             when (weatherList!![0].main) {
                 "Clouds" -> {
                     temperature.text =
-                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n CLOUDY"
+                        Utility.convertToString(weatherAttribute.mainAttributes?.temp!!) + "°" + "\n CLOUDY"
                     img_weather_image.setImageResource(R.drawable.forest_cloudy)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.cloudy))
                 }
                 "Rain" -> {
                     temperature.text =
-                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n RAINY"
+                        Utility.convertToString(weatherAttribute.mainAttributes?.temp!!) + "°" + "\n RAINY"
                     img_weather_image.setImageResource(R.drawable.forest_rainy)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.rainy))
                 }
                 "Clear" -> {
                     temperature.text =
-                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n SUNNY"
+                        Utility.convertToString(weatherAttribute.mainAttributes?.temp!!) + "°" + "\n SUNNY"
+                    img_weather_image.setImageResource(R.drawable.forest_sunny)
+                    lyt_values.setBackgroundColor(resources.getColor(R.color.sunny))
+                }
+                else -> {
+                    temperature.text =
+                        Utility.convertToString(weatherAttribute.mainAttributes?.temp!!) + "°" + "\n" + (weatherList!![0].main)
                     img_weather_image.setImageResource(R.drawable.forest_sunny)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.sunny))
                 }
@@ -356,18 +317,25 @@ class MainActivity : AppCompatActivity(), UniversalListener {
                 GlobalScope.launch {
                     saveFavouriteLocation()
                 }
+                showSuccessToast(context, getString(R.string.success_saved))
                 true
             }
             R.id.action_view_favourites -> {
-                var intent= Intent(this, FavouritesLocationsList::class.java)
+                var intent = Intent(this, FavouritesLocationsList::class.java)
                 startActivity(intent)
                 true
             }
             R.id.action_more_about_location -> {
+                if (Utility.isNetWorkAvailable(context)) {
+                    showExtraLocationDetails()
+                }else{
+                    Utility.showErrorToast(context,getString(R.string.error))
+                }
+
                 true
             }
             R.id.action_map_favourites -> {
-                var intent= Intent(this, FavouritesLocationsOnMap::class.java)
+                var intent = Intent(this, FavouritesLocationsOnMap::class.java)
                 startActivity(intent)
                 true
             }
@@ -420,12 +388,16 @@ class MainActivity : AppCompatActivity(), UniversalListener {
                 })
             }
             isGetLocalData -> {
-                var res= response as LiveData<List<Weather>>
+                var res = response as LiveData<List<Weather>>
                 res?.observe(this, {
                     Utility.hideProgressBar(this)
                     isGetLocalData = false
                     if (it.isNotEmpty()) {
-                        Utility.showCustomErrorDialog(context, getString(R.string.offline), getString(R.string.warning))
+                        Utility.showCustomErrorDialog(
+                            context,
+                            getString(R.string.offline),
+                            getString(R.string.warning)
+                        )
                         displayLocallyFetchedDetails(it[0])
                     }
                 })
@@ -465,4 +437,75 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         Utility.hideProgressBar(this)
         Utility.showCustomErrorDialog(context, message, getString(R.string.failed))
     }
+
+    private fun grantPermissionsDialog() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_warning)
+        dialog.setCancelable(true)
+        val lp = WindowManager.LayoutParams()
+        lp.copyFrom(dialog.window!!.attributes)
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
+        (dialog.findViewById(R.id.bt_close) as AppCompatButton).setOnClickListener {
+            dialog.dismiss()
+            requestPermissions()
+        }
+        dialog.show()
+        dialog.window!!.attributes = lp
+    }
+
+    private fun showCustomErrorDialog() {
+        val dialog = Dialog(context)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setContentView(R.layout.dialog_error)
+        dialog.setCancelable(true)
+        val lp = WindowManager.LayoutParams()
+        lp.copyFrom(dialog.window!!.attributes)
+        lp.width = WindowManager.LayoutParams.WRAP_CONTENT
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT
+        (dialog.findViewById<View>(R.id.title) as TextView).text = getString(R.string.error)
+        (dialog.findViewById<View>(R.id.content) as TextView).text =
+            getString(R.string.switch_on_location)
+        (dialog.findViewById<View>(R.id.bt_close) as AppCompatButton).setOnClickListener {
+            dialog.dismiss()
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            startActivity(intent)
+        }
+        dialog.show()
+        dialog.window!!.attributes = lp
+    }
+
+    private fun showExtraLocationDetails() {
+        var mBehavior = BottomSheetBehavior.from(bottom_sheet)
+        if (mBehavior.state === BottomSheetBehavior.STATE_EXPANDED) {
+            mBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        }
+        val view: View = layoutInflater.inflate(R.layout.location_details, null)
+        mBottomSheetDialog = BottomSheetDialog(this)
+        mBottomSheetDialog?.setContentView(view)
+        (view.findViewById<View>(R.id.tv_country_name) as TextView).text = countryName
+        (view.findViewById<View>(R.id.tv_location_name) as TextView).text = weatherInfo.regionName!!
+        (view.findViewById<View>(R.id.tv_admin_area) as TextView).text = adminArea
+        (view.findViewById<View>(R.id.tv_country_code) as TextView).text = countryCode
+        (view.findViewById<View>(R.id.tv_latitude) as TextView).text = latitude.toString()
+        (view.findViewById<View>(R.id.tv_longitude) as TextView).text = longitude.toString()
+        (view.findViewById<View>(R.id.bt_submit) as Button).setOnClickListener {
+            mBottomSheetDialog?.dismiss()
+        }
+        (view.findViewById<View>(R.id.bt_close) as ImageButton).setOnClickListener {
+            mBottomSheetDialog?.dismiss()
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mBottomSheetDialog!!.window
+                ?.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+        }
+        (view.parent as View).setBackgroundColor(resources.getColor(android.R.color.transparent))
+        mBottomSheetDialog?.show()
+        mBottomSheetDialog?.setOnDismissListener {
+            mBottomSheetDialog = null
+        }
+    }
+
+
 }
