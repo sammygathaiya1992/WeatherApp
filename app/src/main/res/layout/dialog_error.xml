@@ -20,7 +20,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:tint="@android:color/white"
-            app:srcCompat="@drawable/ic_error" />
+            app:srcCompat="@drawable/ic_warning_sign" />
 
         <TextView
             android:id="@+id/title"

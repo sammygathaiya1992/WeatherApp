@@ -6,38 +6,40 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
+import android.location.Geocoder
 import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
-import android.view.Window
-import android.view.WindowManager
+import android.view.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.*
 import com.test.weatherapp.R
 import com.test.weatherapp.data.model.WeatherAttribute
 import com.test.weatherapp.data.model.WeatherForecastList
+import com.test.weatherapp.data.room.database.WeatherDB
+import com.test.weatherapp.data.room.entities.Favourites
+import com.test.weatherapp.data.room.entities.Weather
 import com.test.weatherapp.ui.main.adapters.WeatherForecastAdapter
 import com.test.weatherapp.ui.main.listener.UniversalListener
 import com.test.weatherapp.ui.main.viewmodel.WeatherViewModel
 import com.test.weatherapp.ui.viewmodelfactories.WeatherViewModelFactory
 import com.test.weatherapp.utils.Utility
 import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity(), UniversalListener {
@@ -46,11 +48,19 @@ class MainActivity : AppCompatActivity(), UniversalListener {
     private val requestLocation = 199
     private var context = this
     private lateinit var weatherViewModel: WeatherViewModel
-   private var isGetCurrentWeather= true
+    private var isGetCurrentWeather = true
     private var latitude = 0.0
-    private var longitude =0.0
+    private var longitude = 0.0
     private val stringFormat = DecimalFormat("###,###")
     private lateinit var adapter: WeatherForecastAdapter
+    private var weatherInfo = WeatherAttribute()
+    private var countryName = ""
+    private var countryCode = ""
+    private var adminArea = ""
+    private lateinit var db: WeatherDB
+    private var isGetLocalData = false
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -63,13 +73,42 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         checkIfGpsIsEnabled()
     }
 
-    private fun setUpToolBar(){
+    private fun getExtraLocationDetails(lat: Double, lon: Double) {
+        val geoCoder = Geocoder(this, Locale.getDefault())
+        var address = geoCoder.getFromLocation(lat, lon, 1)
+        countryCode = address[0].countryCode
+        countryName = address[0].countryName
+        adminArea = address[0].adminArea
+    }
+
+    private fun saveFavouriteLocation() {
+        var favourites = Favourites(latitude, longitude, weatherInfo.regionName!!, countryName)
+        db.favouritesDao().insertFavourite(favourites)
+    }
+
+    private fun saveCurrentWeatherDetails() {
+        var weather = Weather(
+            weatherInfo.mainAttributes?.temp!!,
+            weatherInfo.weatherList!![0].main.toString(),
+            weatherInfo.mainAttributes?.minTemperature!!,
+            weatherInfo.mainAttributes?.maxTemperature!!
+        )
+        db.weatherDao().deleteAll()
+        db.weatherDao().insertWeatherDetails(weather)
+    }
+
+    private fun setUpToolBar() {
         toolbar.setNavigationIcon(R.drawable.ic_menu)
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
     }
 
     private fun initResources() {
+        db = Room.databaseBuilder(
+            context,
+            WeatherDB::class.java, "weather-app.db"
+        ).fallbackToDestructiveMigration()
+            .build()
         weatherViewModel =
             ViewModelProviders.of(this, WeatherViewModelFactory(this))
                 .get(WeatherViewModel::class.java)
@@ -78,6 +117,8 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         rv_weather_forecast.layoutManager = LinearLayoutManager(this)
         adapter = WeatherForecastAdapter(context, arrayListOf())
         rv_weather_forecast.adapter = adapter
+
+
     }
 
     private fun requestPermissions() {
@@ -120,9 +161,23 @@ class MainActivity : AppCompatActivity(), UniversalListener {
                     }
                     fusedLocationClient.lastLocation.addOnSuccessListener {
                         if (it != null) {
-                            latitude = it.latitude
-                            longitude = it.longitude
-                            getCurrentWeatherDetails(it.latitude, it.longitude)
+                            if (Utility.isNetWorkAvailable(context)) {
+                                latitude = it.latitude
+                                longitude = it.longitude
+                                getExtraLocationDetails(it.latitude, it.longitude)
+                                getCurrentWeatherDetails(it.latitude, it.longitude)
+                            } else {
+
+                                isGetCurrentWeather = false
+                                isGetLocalData = true
+                                //load locally saved details
+                                getLocallySavedWeatherDetails()
+
+                            }
+                        } else {
+                            isGetCurrentWeather = false
+                            isGetLocalData = true
+                            getLocallySavedWeatherDetails()
                         }
                     }
 
@@ -137,11 +192,16 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         }
     }
 
+    private fun getLocallySavedWeatherDetails() {
+        weatherViewModel.getWeatherDetails()
+    }
+
     private fun getWeatherForecastDetails(lat: Double, lon: Double) {
         weatherViewModel.latitude = lat
         weatherViewModel.longitude = lon
         weatherViewModel.getWeatherForecast()
     }
+
     private fun getCurrentWeatherDetails(lat: Double, lon: Double) {
         weatherViewModel.latitude = lat
         weatherViewModel.longitude = lon
@@ -223,25 +283,54 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         }
     }
 
-    private fun displayCurrentWeather(weatherAttribute: WeatherAttribute){
-        if (weatherAttribute.weatherList!!.isNotEmpty()){
+    private fun displayLocallyFetchedDetails(weather: Weather) {
+        tv_min.text = stringFormat.format(weather.minimumTemperature)
+        tv_current.text = stringFormat.format(weather.currentTemp)
+        tv_max.text = stringFormat.format(weather.maximumTemperature)
+        when (weather.description) {
+            "Clouds" -> {
+                temperature.text =
+                    stringFormat.format(weather.currentTemp) + "\n CLOUDY"
+                img_weather_image.setImageResource(R.drawable.forest_cloudy)
+                lyt_values.setBackgroundColor(resources.getColor(R.color.cloudy))
+            }
+            "Rain" -> {
+                temperature.text =
+                    stringFormat.format(weather.currentTemp) + "\n RAINY"
+                img_weather_image.setImageResource(R.drawable.forest_rainy)
+                lyt_values.setBackgroundColor(resources.getColor(R.color.rainy))
+            }
+            "Clear" -> {
+                temperature.text =
+                    stringFormat.format(weather.currentTemp) + "\n SUNNY"
+                img_weather_image.setImageResource(R.drawable.forest_sunny)
+                lyt_values.setBackgroundColor(resources.getColor(R.color.sunny))
+            }
+        }
+    }
+
+    private fun displayCurrentWeather(weatherAttribute: WeatherAttribute) {
+        if (weatherAttribute.weatherList!!.isNotEmpty()) {
             var weatherList = weatherAttribute.weatherList
-            tv_min.text= stringFormat.format(weatherAttribute.mainAttributes?.minTemperature)
-            tv_current.text= stringFormat.format(weatherAttribute.mainAttributes?.temp)
+            tv_min.text = stringFormat.format(weatherAttribute.mainAttributes?.minTemperature)
+            tv_current.text = stringFormat.format(weatherAttribute.mainAttributes?.temp)
             tv_max.text = stringFormat.format(weatherAttribute.mainAttributes?.maxTemperature)
             when (weatherList!![0].main) {
                 "Clouds" -> {
-                    temperature.text=stringFormat.format(weatherAttribute.mainAttributes?.temp)+"\n CLOUDY"
+                    temperature.text =
+                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n CLOUDY"
                     img_weather_image.setImageResource(R.drawable.forest_cloudy)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.cloudy))
                 }
                 "Rain" -> {
-                    temperature.text=stringFormat.format(weatherAttribute.mainAttributes?.temp)+"\n RAINY"
+                    temperature.text =
+                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n RAINY"
                     img_weather_image.setImageResource(R.drawable.forest_rainy)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.rainy))
                 }
                 "Clear" -> {
-                    temperature.text=stringFormat.format(weatherAttribute.mainAttributes?.temp)+"\n SUNNY"
+                    temperature.text =
+                        stringFormat.format(weatherAttribute.mainAttributes?.temp) + "\n SUNNY"
                     img_weather_image.setImageResource(R.drawable.forest_sunny)
                     lyt_values.setBackgroundColor(resources.getColor(R.color.sunny))
                 }
@@ -264,9 +353,14 @@ class MainActivity : AppCompatActivity(), UniversalListener {
         return when (item.itemId) {
             R.id.action_favourite -> {
                 item.setIcon(R.drawable.ic_like)
+                GlobalScope.launch {
+                    saveFavouriteLocation()
+                }
                 true
             }
             R.id.action_view_favourites -> {
+                var intent= Intent(this, FavouritesLocations::class.java)
+                startActivity(intent)
                 true
             }
             R.id.action_list_favourites -> {
@@ -281,68 +375,92 @@ class MainActivity : AppCompatActivity(), UniversalListener {
 
     override fun onStarted() {
         Utility.showProgressBar(this, this@MainActivity)
-        if (isGetCurrentWeather){
-            weatherViewModel.returnCurrentWeatherData().observe(this, {
+        when {
+            isGetCurrentWeather -> {
+                weatherViewModel.returnCurrentWeatherData().observe(this, {
+
+                })
+            }
+            isGetLocalData -> weatherViewModel.returnWeatherData()?.observe(this, {
 
             })
-        }else{
-            weatherViewModel.returnWeatherForecastData().observe(this, {
+            else -> {
+                weatherViewModel.returnWeatherForecastData().observe(this, {
 
-            })
+                })
+            }
         }
 
     }
 
     override fun onSuccess(response: Any?) {
-        if (isGetCurrentWeather){
-            var responseData = response as MutableLiveData<WeatherAttribute>
-            responseData?.observe(this, { it ->
-                Utility.hideProgressBar(this)
-                isGetCurrentWeather = false
-                if (it.hasError!!) {
-                    this.onFailure(getString(R.string.get_weather_error))
-                } else {
-                    if (it.weatherList.isNullOrEmpty()) {
+        when {
+            isGetCurrentWeather -> {
+                var responseData = response as MutableLiveData<WeatherAttribute>
+                responseData?.observe(this, { it ->
+                    Utility.hideProgressBar(this)
+                    isGetCurrentWeather = false
+                    if (it.hasError!!) {
                         this.onFailure(getString(R.string.get_weather_error))
                     } else {
-                        displayCurrentWeather(it as WeatherAttribute)
-
-                        //get the weather forecast
-                        getWeatherForecastDetails(latitude, longitude)
+                        if (it.weatherList.isNullOrEmpty()) {
+                            this.onFailure(getString(R.string.get_weather_error))
+                        } else {
+                            weatherInfo = it as WeatherAttribute
+                            GlobalScope.launch {
+                                saveCurrentWeatherDetails()
+                            }
+                            displayCurrentWeather(it)
+                            //get the weather forecast
+                            getWeatherForecastDetails(latitude, longitude)
+                        }
                     }
-                }
-            })
-        }else {
-            var responseData = response as MutableLiveData<WeatherForecastList>
-            responseData?.observe(this, { it ->
-                Utility.hideProgressBar(this)
-                if (it.hasError!!) {
-                    this.onFailure(getString(R.string.get_weather_error))
-                } else {
-                    if (it.weatherForecastList.isNullOrEmpty()) {
+                })
+            }
+            isGetLocalData -> {
+                var res= response as LiveData<List<Weather>>
+                res?.observe(this, {
+                    Utility.hideProgressBar(this)
+                    isGetLocalData = false
+                    if (it.isNotEmpty()) {
+                        Utility.showCustomErrorDialog(context, getString(R.string.offline), getString(R.string.warning))
+                        displayLocallyFetchedDetails(it[0])
+                    }
+                })
+
+            }
+            else -> {
+                var responseData = response as MutableLiveData<WeatherForecastList>
+                responseData?.observe(this, { it ->
+                    Utility.hideProgressBar(this)
+                    if (it.hasError!!) {
                         this.onFailure(getString(R.string.get_weather_error))
                     } else {
-                        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                        val timeFormat = SimpleDateFormat("HH:mm:ss")
+                        if (it.weatherForecastList.isNullOrEmpty()) {
+                            this.onFailure(getString(R.string.get_weather_error))
+                        } else {
+                            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                            val timeFormat = SimpleDateFormat("HH:mm:ss")
 
-                        //Weather details available. Take the weather forecast each day at 09.00am.
-                        var filteredList = it.weatherForecastList!!.filter { item ->
-                            var formattedDate: Date = dateFormat.parse(item.dateTime)
-                            timeFormat.format(formattedDate) == "09:00:00"
+                            //Weather details available. Take the weather forecast each day at 09.00am.
+                            var filteredList = it.weatherForecastList!!.filter { item ->
+                                var formattedDate: Date = dateFormat.parse(item.dateTime)
+                                timeFormat.format(formattedDate) == "09:00:00"
+                            }
+                            if (filteredList.isNotEmpty()) {
+                                renderForecastList(filteredList as ArrayList<WeatherAttribute>)
+                            }
+
+
                         }
-                        if (filteredList.isNotEmpty()){
-                            renderForecastList(filteredList as ArrayList<WeatherAttribute>)
-                        }
-
-
                     }
-                }
-            })
+                })
+            }
         }
     }
 
     override fun onFailure(message: String?) {
         Utility.hideProgressBar(this)
-        Utility.showCustomErrorDialog(context, message)
+        Utility.showCustomErrorDialog(context, message, getString(R.string.failed))
     }
 }

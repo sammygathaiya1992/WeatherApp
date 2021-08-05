@@ -31,9 +31,17 @@ data class WeatherAttribute(
     @Expose
     var clouds: Clouds? = Clouds(),
 
+    @SerializedName("sys")
+    @Expose
+    var country: Country? = Country(),
+
     @SerializedName("dt_txt")
     @Expose
     var dateTime: String? = "",
+
+    @SerializedName("name")
+    @Expose
+    var regionName: String? = "",
 
     var hasError: Boolean = false
 )

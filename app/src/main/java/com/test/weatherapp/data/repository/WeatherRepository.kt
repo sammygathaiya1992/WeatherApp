@@ -63,7 +63,7 @@ class WeatherRepository(private val context: Context) {
                 override fun onFailure(call: Call<WeatherAttribute>, t: Throwable) {
                     mutableLiveData.postValue(
                         WeatherAttribute(
-                            null,null, null, null, null, null,null, true
+                            null,null, null, null, null, null,null, "","",true
                         )
                     )
                 }
@@ -75,7 +75,7 @@ class WeatherRepository(private val context: Context) {
                     if (response.errorBody() != null) {
                         mutableLiveData.postValue(
                             WeatherAttribute(
-                                null,null, null, null, null, null,null, true
+                                null,null, null, null, null, null,null, "","",true
                             )
                         )
                     } else {

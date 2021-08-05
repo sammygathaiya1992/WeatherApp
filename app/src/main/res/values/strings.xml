@@ -12,8 +12,19 @@
     <string name="view_favourites">View favourites</string>
     <string name="view_favourites_on_map">View favourites on map</string>
     <string name="show_extra_info">More about current location</string>
+    <string name="offline">You are offline. You will see the last updates your app received</string>
+    <string name="error">Error</string>
 
     <!--Maps Activity-->
     <string name="title_activity_weather_locations">Map</string>
+
+    <!--Favourites-->
+    <string name="title_activity_favourites_locations">FavouritesLocations</string>
+    <string name="no_favourites">You have not yet saved any locations as your favourites.</string>
+    <string name="latitude">Latitude: %1$s</string>
+    <string name="longitude">Longitude: %1$s</string>
+    <string name="country_name">Country name: %1$s</string>
+
+
 
 </resources>

@@ -79,8 +79,4 @@ class WeatherForecastAdapter(
         weatherForecastList.addAll(list)
     }
 
-    fun resetCustomerList() {
-        weatherForecastList = ArrayList()
-    }
-
 }
