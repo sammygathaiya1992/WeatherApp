@@ -27,8 +27,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.test.weatherapp.R
 import com.test.weatherapp.data.room.entities.Favourites
 import com.test.weatherapp.ui.main.listener.UniversalListener
-import com.test.weatherapp.ui.main.viewmodel.WeatherViewModel
-import com.test.weatherapp.ui.viewmodelfactories.WeatherViewModelFactory
+import com.test.weatherapp.ui.main.viewmodel.FavouritesViewModel
+import com.test.weatherapp.ui.viewmodelfactories.FavouritesViewModelFactory
 import com.test.weatherapp.utils.Utility
 
 
@@ -36,7 +36,7 @@ class FavouritesLocationsOnMap : AppCompatActivity(), OnMapReadyCallback,
     ConnectionCallbacks,
     OnConnectionFailedListener, UniversalListener {
     private var context = this
-    private lateinit var weatherViewModel: WeatherViewModel
+    private lateinit var favouritesViewModel: FavouritesViewModel
     private lateinit var mLocationRequest: LocationRequest
     val MY_PERMISSIONS_REQUEST_LOCATION = 99
     private lateinit var mGoogleMap: GoogleMap
@@ -58,14 +58,14 @@ class FavouritesLocationsOnMap : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun initResources(){
-        weatherViewModel =
-            ViewModelProviders.of(this, WeatherViewModelFactory(this))
-                .get(WeatherViewModel::class.java)
-        weatherViewModel.listener = this
+        favouritesViewModel =
+            ViewModelProviders.of(this, FavouritesViewModelFactory(this))
+                .get(FavouritesViewModel::class.java)
+        favouritesViewModel.listener = this
     }
 
     private fun getAllFavourites() {
-        weatherViewModel.getFavourites()
+        favouritesViewModel.getFavourites()
     }
     override fun onMapReady(googleMap: GoogleMap) {
         mGoogleMap = googleMap
@@ -177,7 +177,7 @@ class FavouritesLocationsOnMap : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun onStarted() {
-        weatherViewModel.returnFavouritesData()?.observe(this, {
+        favouritesViewModel.returnFavouritesData()?.observe(this, {
 
         })
     }

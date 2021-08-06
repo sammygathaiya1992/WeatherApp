@@ -9,14 +9,14 @@ import com.test.weatherapp.R
 import com.test.weatherapp.data.room.entities.Favourites
 import com.test.weatherapp.ui.main.adapters.FavouritesAdapter
 import com.test.weatherapp.ui.main.listener.UniversalListener
-import com.test.weatherapp.ui.main.viewmodel.WeatherViewModel
-import com.test.weatherapp.ui.viewmodelfactories.WeatherViewModelFactory
+import com.test.weatherapp.ui.main.viewmodel.FavouritesViewModel
+import com.test.weatherapp.ui.viewmodelfactories.FavouritesViewModelFactory
 import com.test.weatherapp.utils.Utility
 import kotlinx.android.synthetic.main.content_favourites_locations.*
 
 class FavouritesLocationsList : AppCompatActivity(), UniversalListener {
     private var context = this
-    private lateinit var weatherViewModel: WeatherViewModel
+    private lateinit var favouritesViewModel: FavouritesViewModel
     private lateinit var adapter: FavouritesAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +28,10 @@ class FavouritesLocationsList : AppCompatActivity(), UniversalListener {
     }
 
     private fun initResources() {
-        weatherViewModel =
-            ViewModelProviders.of(this, WeatherViewModelFactory(this))
-                .get(WeatherViewModel::class.java)
-        weatherViewModel.listener = this
+        favouritesViewModel =
+            ViewModelProviders.of(this, FavouritesViewModelFactory(this))
+                .get(FavouritesViewModel::class.java)
+        favouritesViewModel.listener = this
 
         rv_favourites.layoutManager = LinearLayoutManager(this)
         adapter = FavouritesAdapter(context, arrayListOf())
@@ -40,7 +40,7 @@ class FavouritesLocationsList : AppCompatActivity(), UniversalListener {
     }
 
     private fun getAllFavourites() {
-        weatherViewModel.getFavourites()
+        favouritesViewModel.getFavourites()
     }
 
 
@@ -51,7 +51,7 @@ class FavouritesLocationsList : AppCompatActivity(), UniversalListener {
         adapter.notifyDataSetChanged()
     }
     override fun onStarted() {
-        weatherViewModel.returnFavouritesData()?.observe(this, {
+        favouritesViewModel.returnFavouritesData()?.observe(this, {
 
         })
     }

@@ -49,21 +49,11 @@ class WeatherViewModel(private val context: Context) : ViewModel() {
 
     }
 
-    fun getFavourites(){
-        viewModelScope.launch {
-            listener?.onStarted()
-            favouritesData = db.favouritesDao().getAllFavourites()
-            listener?.onSuccess(favouritesData)
-        }
-    }
 
     fun getCurrentWeather() {
         listener?.onStarted()
         currentWeatherData = weatherRepository.getCurrentWeather(latitude, longitude)
         listener?.onSuccess(currentWeatherData)
-    }
-    fun returnFavouritesData(): LiveData<List<Favourites>>?{
-        return  favouritesData
     }
 
     fun returnWeatherForecastData(): MutableLiveData<WeatherForecastList> {
