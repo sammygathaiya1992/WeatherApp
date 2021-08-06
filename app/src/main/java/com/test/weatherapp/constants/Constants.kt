@@ -1,9 +1,11 @@
 package com.test.weatherapp.constants
 
+import com.test.weatherapp.BuildConfig
+
 /**
  * Created by GATHAIYA on 02/08/2021.
  */
 object Constants {
-    var baseUrl = "https://api.openweathermap.org"
-    var apiKey = "5a2853418267a8cc99b5eff38a6d2004"
+    var baseUrl = BuildConfig.BASE_URL
+    var apiKey = BuildConfig.API_KEY
 }
